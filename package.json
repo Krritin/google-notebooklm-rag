@@ -1,0 +1,29 @@
+{
+  "name": "google-notebooklm-rag",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A NotebookLM-style RAG application built with Next.js, LangChain, Qdrant and OpenRouter",
+  "author": "Krritin Keshan 24bcs10122",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@langchain/community": "^0.3.11",
+    "@langchain/core": "^0.3.18",
+    "@langchain/qdrant": "^0.1.1",
+    "@langchain/textsplitters": "^0.1.0",
+    "@xenova/transformers": "^2.17.2",
+    "langchain": "^0.3.6",
+    "next": "14.2.18",
+    "openai": "^4.73.0",
+    "pdf-parse": "1.1.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "engines": {
+    "node": ">=18.18.0"
+  }
+}

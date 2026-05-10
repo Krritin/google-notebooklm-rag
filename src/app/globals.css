@@ -1,0 +1,626 @@
+:root {
+  --paper: #f3ead4;
+  --paper-deep: #e8dcbe;
+  --paper-shade: rgba(74, 53, 23, 0.05);
+  --ink: #1a1410;
+  --ink-soft: #5a4838;
+  --ink-faded: #8e7c66;
+  --rule: #c8b89a;
+  --rule-soft: #d9caac;
+  --accent: #b8412c;
+  --accent-deep: #8a2e1e;
+  --accent-soft: rgba(184, 65, 44, 0.09);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(
+      ellipse 80% 60% at 20% 0%,
+      rgba(255, 248, 220, 0.5),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 70% 60% at 100% 100%,
+      rgba(184, 65, 44, 0.04),
+      transparent 70%
+    ),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.10  0 0 0 0 0.08  0 0 0 0 0.06  0 0 0 0.07 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-attachment: fixed, fixed, fixed;
+  color: var(--ink);
+  font-family: var(--font-body), "EB Garamond", Georgia, serif;
+  font-size: 18px;
+  line-height: 1.65;
+  font-feature-settings: "liga", "kern", "onum";
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--paper);
+}
+
+a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* ── Layout ─────────────────────────────────────────── */
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 56px 32px 48px;
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 36px 22px 36px;
+  }
+}
+
+/* ── Masthead ───────────────────────────────────────── */
+
+.masthead {
+  margin-bottom: 56px;
+}
+
+.masthead__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--ink-soft);
+  flex-wrap: wrap;
+}
+
+.masthead__row em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+.rule {
+  height: 1px;
+  background: var(--ink);
+  margin: 10px 0;
+  transform-origin: left center;
+  animation: ruleDraw 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.rule--double {
+  height: 5px;
+  background: linear-gradient(
+    to bottom,
+    var(--ink) 0,
+    var(--ink) 1px,
+    transparent 1px,
+    transparent 4px,
+    var(--ink) 4px,
+    var(--ink) 5px
+  );
+}
+
+.rule--hair {
+  background: var(--rule);
+}
+
+.masthead__title {
+  font-family: var(--font-display), "Bodoni Moda", serif;
+  font-weight: 900;
+  font-size: clamp(56px, 9.5vw, 104px);
+  line-height: 0.93;
+  letter-spacing: -0.025em;
+  margin: 36px 0 28px;
+  animation: rise 0.9s 0.15s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.masthead__title em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+  position: relative;
+}
+
+.masthead__title em::after {
+  content: ".";
+  color: var(--ink);
+  font-style: normal;
+}
+
+.masthead__lede {
+  font-family: var(--font-body), serif;
+  font-size: 19px;
+  line-height: 1.55;
+  max-width: 56ch;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin: 0 0 4px;
+  animation: rise 0.9s 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* ── Section headings ───────────────────────────────── */
+
+.section {
+  margin-bottom: 52px;
+  animation: rise 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.section--ledger {
+  animation-delay: 0.55s;
+}
+
+.section--deposit {
+  animation-delay: 0.45s;
+}
+
+.section__title {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin: 0 0 18px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-style: italic;
+  font-size: 24px;
+  letter-spacing: -0.01em;
+}
+
+.section__title .roman {
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 500;
+  border: 1px solid var(--accent);
+  padding: 3px 8px 2px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+/* ── Deposit (upload) ───────────────────────────────── */
+
+.deposit {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  align-items: stretch;
+}
+
+@media (max-width: 520px) {
+  .deposit {
+    grid-template-columns: 1fr;
+  }
+}
+
+.deposit__field {
+  position: relative;
+  border: 1px solid var(--rule);
+  background: rgba(255, 250, 232, 0.5);
+  padding: 14px 16px 12px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.deposit__field:hover {
+  border-color: var(--ink-soft);
+  background: rgba(255, 250, 232, 0.85);
+}
+
+.deposit__field-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  margin-bottom: 6px;
+}
+
+.deposit__field-value {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--ink);
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.deposit__field-value.empty {
+  color: var(--ink-faded);
+}
+
+.deposit__field input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  padding: 14px 22px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, transform 0.05s;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  background: transparent;
+  color: var(--ink-faded);
+  border-color: var(--rule);
+  cursor: not-allowed;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--ink);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.deposit__note {
+  margin-top: 14px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-style: italic;
+  color: var(--ink-soft);
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.deposit__note::before {
+  content: "※";
+  color: var(--accent);
+  font-style: normal;
+  font-size: 18px;
+}
+
+.deposit__note--error {
+  color: var(--accent-deep);
+}
+
+.deposit__note--success {
+  color: var(--ink);
+}
+
+.deposit__note--loading::after {
+  content: "";
+  display: inline-block;
+  width: 36px;
+  height: 1px;
+  margin-left: 6px;
+  background: var(--accent);
+  transform-origin: left;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+/* ── Ledger (chat) ──────────────────────────────────── */
+
+.ledger {
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  padding: 24px 0 8px;
+  margin-bottom: 22px;
+  min-height: 320px;
+}
+
+.ledger__empty {
+  text-align: center;
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--ink-faded);
+  padding: 60px 20px;
+  margin: 0;
+  font-size: 17px;
+}
+
+.ledger__empty::before,
+.ledger__empty::after {
+  content: " ❦ ";
+  color: var(--accent);
+  font-style: normal;
+}
+
+.entry {
+  margin-bottom: 32px;
+  animation: rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.entry--question {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.entry__marker {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.entry--question p {
+  font-family: var(--font-body);
+  font-size: 19px;
+  font-weight: 500;
+  margin: 0;
+  letter-spacing: 0.005em;
+}
+
+.entry--answer {
+  padding-left: 40px;
+  position: relative;
+}
+
+.entry--answer::before {
+  content: "A.";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 22px;
+  color: var(--ink-soft);
+}
+
+.entry__body {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.entry__body em {
+  color: var(--accent);
+}
+
+.entry--thinking {
+  padding-left: 40px;
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--ink-faded);
+  font-size: 17px;
+  margin: 0;
+  position: relative;
+}
+
+.entry--thinking::before {
+  content: "A.";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 22px;
+  color: var(--ink-faded);
+}
+
+.entry--thinking .dots::after {
+  content: "";
+  display: inline-block;
+  margin-left: 6px;
+  animation: typedots 1.4s steps(4, end) infinite;
+}
+
+/* footnotes */
+
+.footnotes {
+  margin-top: 18px;
+  padding-top: 14px;
+  position: relative;
+}
+
+.footnotes::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 80px;
+  height: 1px;
+  background: var(--rule);
+}
+
+.footnotes__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  margin: 0 0 10px;
+}
+
+.footnotes ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: fn;
+}
+
+.footnotes li {
+  counter-increment: fn;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  font-style: italic;
+  padding-left: 26px;
+  position: relative;
+  margin-bottom: 6px;
+}
+
+.footnotes li::before {
+  content: counter(fn);
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.footnotes .page-mark {
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-right: 8px;
+}
+
+/* ── Composer ───────────────────────────────────────── */
+
+.composer {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 4px;
+}
+
+.composer__caret {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 26px;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.composer input {
+  font-family: var(--font-body);
+  font-size: 18px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  padding: 10px 4px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.composer input::placeholder {
+  color: var(--ink-faded);
+  font-style: italic;
+}
+
+.composer input:focus {
+  border-bottom-color: var(--accent);
+}
+
+.composer input:disabled {
+  color: var(--ink-faded);
+}
+
+/* ── Colophon ───────────────────────────────────────── */
+
+.colophon {
+  margin-top: 64px;
+  text-align: center;
+}
+
+.colophon p {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--ink-faded);
+  margin: 14px 0 0;
+}
+
+.colophon p em {
+  font-family: var(--font-body);
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+/* ── Animations ─────────────────────────────────────── */
+
+@keyframes ruleDraw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scaleX(0.2);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes typedots {
+  0% { content: ""; }
+  25% { content: "·"; }
+  50% { content: "··"; }
+  75% { content: "···"; }
+  100% { content: ""; }
+}
