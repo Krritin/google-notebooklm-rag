@@ -18,18 +18,18 @@ own knowledge.
 | Framework        | Next.js 14 (App Router)                                 |
 | Document loaders | `@langchain/community` PDFLoader / TextLoader           |
 | Chunking         | `RecursiveCharacterTextSplitter` — 1000 / 200           |
-| Embeddings       | **Local** `Xenova/all-MiniLM-L6-v2` (no API key needed) |
+| Embeddings       | HuggingFace Inference API — `sentence-transformers/all-MiniLM-L6-v2` |
 | Vector DB        | Qdrant — local Docker / Qdrant Cloud                    |
 | LLM              | **OpenRouter** (default model: `openai/gpt-4o-mini`)    |
 | Hosting          | Vercel + Qdrant Cloud                                   |
 
-### Why OpenRouter + local embeddings?
+### Why OpenRouter + HuggingFace?
 
 OpenRouter is a unified gateway that routes a single API key to any of ~200
 chat models (GPT, Claude, Llama, Mistral, etc.). It does **not** expose an
-embeddings endpoint, so this project ships embeddings locally via
-`@xenova/transformers`. That keeps setup down to a **single API key** for the
-whole pipeline.
+embeddings endpoint, so embeddings are served from the free HuggingFace
+Inference API. Both providers offer free tiers, so the whole pipeline can run
+without spending a cent.
 
 ## Pipeline
 
