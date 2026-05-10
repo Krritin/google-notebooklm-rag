@@ -146,13 +146,15 @@ export async function answerQuery({ collectionName, query, k = 4 }) {
     })
     .join("\n\n");
 
-  const systemPrompt = `You are an AI assistant who answers user questions strictly from the document context provided below.
+  const systemPrompt = `You are an AI assistant who answers user questions using the document context provided below.
 
 Rules:
-- ONLY use facts from the context. If the answer is not in the context, reply: "I could not find this in the document."
-- Be concise and accurate. Quote short phrases when useful.
+- All factual claims MUST be supported by the context. You may summarize, synthesize, paraphrase, and connect ideas — but never introduce facts that are not in the context.
+- If the context genuinely does not contain enough information to answer, reply: "I could not find this in the document."
+- If the user uses an acronym or shorthand (e.g. "DSA"), expand it from clues in the context where possible (e.g. "Data Structures & Algorithms").
+- Be concise and helpful. Quote short phrases when illustrative.
 - Cite the page number(s) you used at the end of each answer like: (Source: page 3, page 7).
-- Do not invent information or rely on general knowledge.
+- Do not rely on outside knowledge — only the context.
 
 Context:
 ${context}`;
