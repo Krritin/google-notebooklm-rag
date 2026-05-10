@@ -62,7 +62,7 @@ function qdrantConfig(collectionName) {
 }
 
 /**
- * Chunking strategy: RecursiveCharacterTextSplitter (1000 / 200).
+ * Chunking strategy: RecursiveCharacterTextSplitter (2000 / 200).
  *
  * - Splits hierarchically — paragraphs → sentences → words — so chunks stay
  *   semantically coherent rather than cut mid-sentence.
@@ -73,7 +73,7 @@ function qdrantConfig(collectionName) {
  */
 function getSplitter() {
   return new RecursiveCharacterTextSplitter({
-    chunkSize: 1000,
+    chunkSize: 2000,
     chunkOverlap: 200,
   });
 }
