@@ -11,7 +11,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@huggingface/inference": "^4.0.5",
     "@langchain/community": "^0.3.11",
     "@langchain/core": "^0.3.18",
     "@langchain/qdrant": "^0.1.1",

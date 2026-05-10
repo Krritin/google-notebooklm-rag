@@ -6,16 +6,15 @@ import { randomUUID } from "node:crypto";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { TextLoader } from "langchain/document_loaders/fs/text";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { HuggingFaceInferenceEmbeddings } from "@langchain/community/embeddings/hf";
+import { JinaEmbeddings } from "@langchain/community/embeddings/jina";
 import { QdrantVectorStore } from "@langchain/qdrant";
 import { OpenAI } from "openai";
 
 const QDRANT_URL = process.env.QDRANT_URL || "http://localhost:6333";
 const QDRANT_API_KEY = process.env.QDRANT_API_KEY || undefined;
 
-const EMBED_MODEL =
-  process.env.EMBED_MODEL || "sentence-transformers/all-MiniLM-L6-v2";
-const HF_API_KEY = process.env.HUGGINGFACEHUB_API_KEY;
+const EMBED_MODEL = process.env.EMBED_MODEL || "jina-embeddings-v2-small-en";
+const JINA_API_KEY = process.env.JINA_API_KEY;
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || "openai/gpt-4o-mini";
@@ -23,14 +22,14 @@ const SITE_URL = process.env.SITE_URL || "http://localhost:3000";
 
 let _embeddings;
 function getEmbeddings() {
-  if (!HF_API_KEY) {
+  if (!JINA_API_KEY) {
     throw new Error(
-      "HUGGINGFACEHUB_API_KEY is not set. Get a free token at https://huggingface.co/settings/tokens.",
+      "JINA_API_KEY is not set. Get a free key at https://jina.ai/?sui=apikey (no card required).",
     );
   }
   if (!_embeddings) {
-    _embeddings = new HuggingFaceInferenceEmbeddings({
-      apiKey: HF_API_KEY,
+    _embeddings = new JinaEmbeddings({
+      apiKey: JINA_API_KEY,
       model: EMBED_MODEL,
     });
   }
