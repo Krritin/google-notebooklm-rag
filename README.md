@@ -6,7 +6,7 @@ Upload a PDF or plain-text manuscript and converse with its contents. Replies
 are drawn only from the page — every factual claim is grounded in the
 retrieved chunks, with page numbers cited as footnotes.
 
-- **Live demo:** <https://google-notebooklm-rag.vercel.app>
+- **Live demo:** <https://google-notebooklm-rag-krritin.vercel.app>
 - **GitHub repo:** <https://github.com/Krritin/google-notebooklm-rag>
 
 ---
