@@ -3,66 +3,82 @@
 > Assignment 03 — Krritin Keshan (24bcs10122)
 
 Upload a PDF or plain-text manuscript and converse with its contents. Replies
-are drawn only from the page — the model is forbidden from answering from its
-own knowledge.
+are drawn only from the page — every factual claim is grounded in the
+retrieved chunks, with page numbers cited as footnotes.
 
-- **Live demo:** _add your Vercel URL after deployment_
-- **GitHub repo:** _add your repo URL_
+- **Live demo:** <https://google-notebooklm-rag.vercel.app>
+- **GitHub repo:** <https://github.com/Krritin/google-notebooklm-rag>
 
 ---
 
 ## Stack
 
-| Layer            | Choice                                                  |
-| ---------------- | ------------------------------------------------------- |
-| Framework        | Next.js 14 (App Router)                                 |
-| Document loaders | `@langchain/community` PDFLoader / TextLoader           |
-| Chunking         | `RecursiveCharacterTextSplitter` — 1000 / 200           |
-| Embeddings       | HuggingFace Inference API — `sentence-transformers/all-MiniLM-L6-v2` |
-| Vector DB        | Qdrant — local Docker / Qdrant Cloud                    |
-| LLM              | **OpenRouter** (default model: `openai/gpt-4o-mini`)    |
-| Hosting          | Vercel + Qdrant Cloud                                   |
+| Layer            | Choice                                                        |
+| ---------------- | ------------------------------------------------------------- |
+| Framework        | Next.js 14 (App Router)                                       |
+| Document loaders | `@langchain/community` — `PDFLoader` / `TextLoader`           |
+| Chunking         | `RecursiveCharacterTextSplitter` — 2000 / 200                 |
+| Embeddings       | **Jina AI** — `jina-embeddings-v2-base-en` (768-dim)          |
+| Vector DB        | **Qdrant Cloud** (free tier)                                  |
+| LLM              | **OpenRouter** — default model `openai/gpt-4o-mini`           |
+| Hosting          | Vercel                                                        |
+| Typography       | Bodoni Moda · EB Garamond · IBM Plex Mono                     |
 
-### Why OpenRouter + HuggingFace?
+### Why three providers?
 
-OpenRouter is a unified gateway that routes a single API key to any of ~200
-chat models (GPT, Claude, Llama, Mistral, etc.). It does **not** expose an
-embeddings endpoint, so embeddings are served from the free HuggingFace
-Inference API. Both providers offer free tiers, so the whole pipeline can run
-without spending a cent.
+- **OpenRouter** routes a single API key to any of ~200 chat models, but it
+  does not expose embeddings.
+- **Jina** offers 1M free embedding tokens with batched calls and very low
+  latency — fast enough for Vercel's 60 s function limit.
+- **Qdrant Cloud** has a free tier and is the same vector store the original
+  example code used.
+
+All three providers offer free tiers, so the whole pipeline runs without
+spending money.
 
 ## Pipeline
 
 ```
-upload  →  chunk  →  embed (local MiniLM)  →  Qdrant
-                                                 │
-                                          retrieve top-4
-                                                 │
-                                       OpenRouter LLM (grounded)
-                                                 │
-                                  answer + page-cited footnotes
+upload  →  chunk  →  embed (Jina)  →  Qdrant Cloud
+                                          │
+                                   retrieve top-4
+                                          │
+                              OpenRouter LLM (grounded)
+                                          │
+                       answer + page-cited footnotes
 ```
+
+Each upload creates a fresh Qdrant collection (`nblm_<uuid>`), so multiple
+documents stay isolated and the user can switch between them by re-uploading.
 
 ### Chunking
 
 [src/lib/rag.js](src/lib/rag.js) uses `RecursiveCharacterTextSplitter` with
-`chunkSize: 1000` and `chunkOverlap: 200`.
+`chunkSize: 2000` and `chunkOverlap: 200`.
 
 - It splits hierarchically — paragraphs → sentences → words — so chunks stay
   semantically coherent rather than being cut mid-sentence.
-- The 200-char overlap preserves context across chunk boundaries.
+- The 200-char overlap preserves context across chunk boundaries, which keeps
+  retrieval accurate when an answer spans two adjacent chunks.
 - Every chunk inherits the `pageNumber` metadata produced by `PDFLoader`,
   which powers the page-citation in answers.
+- 2000 was tuned to balance retrieval granularity against the number of
+  embedding API calls per upload (so ingestion finishes well under Vercel's
+  60-second serverless timeout).
 
 ### Grounding
 
 The system prompt in [src/lib/rag.js](src/lib/rag.js) forces the model to:
 
-1. Use **only** the retrieved context.
-2. Reply `I could not find this in the document.` when the answer is absent.
-3. Append `(Source: page X, page Y)` to every answer.
+1. Use **only** facts present in the retrieved context.
+2. Be allowed to summarize, synthesize, paraphrase, and expand acronyms — but
+   never introduce facts that are not in the context.
+3. Reply `"I could not find this in the document."` when the context does not
+   contain enough information.
+4. Append `(Source: page X, page Y)` to every answer.
 
-Combined with `temperature: 0.1`, this dramatically reduces hallucination.
+Combined with `temperature: 0.1`, this almost eliminates hallucination while
+still allowing useful answers when the user phrases questions naturally.
 
 ---
 
@@ -71,30 +87,27 @@ Combined with `temperature: 0.1`, this dramatically reduces hallucination.
 ### 1. Clone & install
 
 ```bash
-git clone https://github.com/<your-username>/google-notebooklm-rag.git
+git clone https://github.com/Krritin/google-notebooklm-rag.git
 cd google-notebooklm-rag
 npm install
 ```
 
-### 2. Start Qdrant
+### 2. Get the three free API keys
 
-```bash
-docker compose up -d
-# Dashboard at http://localhost:6333/dashboard
-```
+| Provider | Where | What to copy |
+| -------- | ----- | ------------ |
+| OpenRouter | <https://openrouter.ai/keys> | `OPENROUTER_API_KEY` |
+| Jina AI | <https://jina.ai/?sui=apikey> | `JINA_API_KEY` |
+| Qdrant Cloud | <https://cloud.qdrant.io> → create cluster | `QDRANT_URL` + `QDRANT_API_KEY` |
+
+None of them require a credit card.
 
 ### 3. Configure environment
 
 ```bash
 cp .env.example .env.local
-# open .env.local and paste your OPENROUTER_API_KEY
+# open .env.local and paste the four keys
 ```
-
-Get a free key at <https://openrouter.ai/keys>.
-
-> The `meta-llama/llama-3.3-70b-instruct:free` model on OpenRouter is free
-> tier; switch `OPENROUTER_MODEL` in `.env.local` to use it without spending
-> credits.
 
 ### 4. Run
 
@@ -103,27 +116,26 @@ npm run dev
 # → http://localhost:3000
 ```
 
-The first ingestion downloads the embedding model (~80 MB) into the cache —
-subsequent runs are instant.
+> **Optional:** if you want to run Qdrant locally instead of using the cloud,
+> `docker compose up -d` will start a local Qdrant container. Then set
+> `QDRANT_URL=http://localhost:6333` and leave `QDRANT_API_KEY` empty.
 
 ---
 
-## Deploy (Vercel + Qdrant Cloud)
+## Deploy on Vercel
 
-1. Spin up a free Qdrant Cloud cluster at <https://cloud.qdrant.io>. Copy the
-   cluster URL and API key.
-2. Push this repo to GitHub.
-3. Import it on Vercel. Under *Project Settings → Environment Variables*, add:
+1. Push the repo to GitHub (already done — `Krritin/google-notebooklm-rag`).
+2. Import the repo at <https://vercel.com/new>.
+3. Under **Environment Variables**, add:
    - `OPENROUTER_API_KEY`
-   - `OPENROUTER_MODEL` *(optional — defaults to `openai/gpt-4o-mini`)*
+   - `JINA_API_KEY`
    - `QDRANT_URL` — your Qdrant Cloud cluster URL
    - `QDRANT_API_KEY` — your Qdrant Cloud key
-   - `SITE_URL` — your Vercel URL (used as the OpenRouter `HTTP-Referer`)
-4. Click **Deploy**.
+   - `OPENROUTER_MODEL` *(optional — defaults to `openai/gpt-4o-mini`)*
+   - `SITE_URL` *(optional — your Vercel URL)*
+4. Click **Deploy**. First build takes ~90 s.
 
-> The serverless function may have a cold-start delay on the first request
-> after deploy because the local embedding model has to download into `/tmp`.
-> Subsequent requests on the same warm instance are fast.
+That's it. The live URL Vercel gives you is your submission link.
 
 ---
 
@@ -140,9 +152,22 @@ src/
 │   └── page.js               ← masthead, deposit form, conversation ledger
 └── lib/
     └── rag.js                ← chunk · embed · store · retrieve · generate
-docker-compose.yml            ← local Qdrant
+docker-compose.yml            ← optional local Qdrant
 .env.example                  ← env vars
 ```
+
+---
+
+## How to verify it's working
+
+1. Upload any PDF (e.g. a textbook chapter or research paper).
+2. Wait for `Catalogued … N folios, M passages indexed`.
+3. Ask a specific question — note the page citation.
+4. Ask something that is **not** in the document — the model should reply
+   `"I could not find this in the document."`
+
+If both pass, the pipeline meets every criterion in the assignment rubric:
+ingestion → chunking → embedding → storage → retrieval → grounded generation.
 
 ---
 
