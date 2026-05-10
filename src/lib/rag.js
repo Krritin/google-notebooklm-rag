@@ -13,7 +13,7 @@ import { OpenAI } from "openai";
 const QDRANT_URL = process.env.QDRANT_URL || "http://localhost:6333";
 const QDRANT_API_KEY = process.env.QDRANT_API_KEY || undefined;
 
-const EMBED_MODEL = process.env.EMBED_MODEL || "jina-embeddings-v2-small-en";
+const EMBED_MODEL = process.env.EMBED_MODEL || "jina-embeddings-v2-base-en";
 const JINA_API_KEY = process.env.JINA_API_KEY;
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
